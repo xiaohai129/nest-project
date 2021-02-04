@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { classToPlain } from 'class-transformer';
 
-export class TransformInterceptor implements NestInterceptor {
+export default class TransformInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> | Promise<Observable<any>> {
     const ctx = context.switchToHttp();
     ctx.getResponse().status(200);
