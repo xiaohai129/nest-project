@@ -1,5 +1,6 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { IsMobilePhone, IsNotEmpty, MaxLength } from 'class-validator';
+import { RoleType } from 'src/decorator/api.decorator';
 import { User } from '../user.entity';
 
 export class UserLoginParamDto extends PickType(User, ['mobile', 'passwrod']) {}
@@ -25,4 +26,8 @@ export class UserInfoResultDto extends User {
     description: '添加的用户id'
   })
   token: string;
+}
+
+export class UserTokenDto extends PickType(User, ['id', 'mobile', 'name']) {
+  roles: RoleType[] = ['add', 'get'];
 }

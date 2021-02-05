@@ -30,7 +30,8 @@ export class User {
   passwrod: string;
 
   @ApiProperty({
-    description: '手机号'
+    description: '手机号',
+    default: '17796479580'
   })
   @IsMobilePhone('zh-CN')
   @Column({

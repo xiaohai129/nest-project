@@ -4,11 +4,13 @@ import ErrorRequestFilter from './filter/error-request.filter';
 import TransformInterceptor from './Interceptor/transform.interceptor';
 import { AppModule } from './module/app.module';
 import { HttpException, ValidationPipe } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // 全局管道
+  // 管道
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -26,15 +28,31 @@ async function bootstrap() {
     })
   );
 
-  // 全局拦截器
+  // 拦截器
   app.useGlobalInterceptors(new TransformInterceptor());
 
-  // 全局过滤器
+  // 过滤器
   app.useGlobalFilters(new ErrorRequestFilter());
 
-  const config = new DocumentBuilder().setTitle('Test example').setDescription('The test API description').setVersion('1.0').build();
+  app.useStaticAssets(join(__dirname, '../public/', 'script'), {
+    prefix: '/js/'
+  });
+
+  const config = new DocumentBuilder()
+    .setTitle('Test example')
+    .setDescription('The test API description')
+    .setVersion('1.0')
+    .addSecurity('auth', {
+      type: 'apiKey',
+      name: 'authorization',
+      description: '用户token',
+      in: 'header'
+    })
+    .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api', app, document, {
+    customJs: '/js/set-token.js'
+  });
 
   await app.listen(3000);
 }
