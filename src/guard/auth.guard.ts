@@ -6,25 +6,41 @@ import { AuthService } from 'src/module/auth/auth.service';
 import { UserTokenDto } from 'src/module/user/dto/user.dto';
 
 @Injectable()
-export class XAuthGuard extends AuthGuard('jwt') {
-  constructor(private readonly reflector: Reflector) {
-    super();
-  }
+export class XAuthGuard implements CanActivate {
+  constructor(private readonly reflector: Reflector, private readonly authService: AuthService) {}
+
   canActivate(context: ExecutionContext) {
-    return super.canActivate(context);
-  }
+    const request = context.switchToHttp().getRequest() as Request;
+    const token = (request.headers as any).token;
+    try {
+      const user = this.authService.verifyToken(token);
 
-  handleRequest(err: any, user: UserTokenDto, info: any, context: ExecutionContext, status: any) {
-    const methodRoles = this.reflector.get('roles', context.getHandler());
-    const userRoles = user.roles;
+      const methodRoles = this.reflector.get('roles', context.getHandler());
+      const userRoles = user.roles;
 
-    if (methodRoles && userRoles) {
-      const flag = Array.from(new Set([...methodRoles, ...userRoles])).length === methodRoles.concat(userRoles).length;
-      if (flag) {
-        throw new HttpException('没有权限', HttpStatus.UNAUTHORIZED);
+      if (methodRoles && userRoles) {
+        const flag = Array.from(new Set([...methodRoles, ...userRoles])).length === methodRoles.concat(userRoles).length;
+        if (flag) {
+          throw new HttpException('没有权限', HttpStatus.UNAUTHORIZED);
+        }
       }
+    } catch (error) {
+      throw new HttpException('token已失效', HttpStatus.UNAUTHORIZED);
     }
-
-    return user as any;
+    return true;
   }
+
+  // handleRequest(err: any, user: UserTokenDto, info: any, context: ExecutionContext, status: any) {
+  //   const methodRoles = this.reflector.get('roles', context.getHandler());
+  //   const userRoles = user.roles;
+
+  //   if (methodRoles && userRoles) {
+  //     const flag = Array.from(new Set([...methodRoles, ...userRoles])).length === methodRoles.concat(userRoles).length;
+  //     if (flag) {
+  //       throw new HttpException('没有权限', HttpStatus.UNAUTHORIZED);
+  //     }
+  //   }
+
+  //   return user as any;
+  // }
 }

@@ -1,9 +1,9 @@
 import { applyDecorators, RequestMapping, RequestMethod, SetMetadata, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiBasicAuth, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { ParameterObject, ReferenceObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 import { XAuthGuard } from 'src/guard/auth.guard';
 
-export type RoleType = 'token' | 'update' | 'add' | 'delete' | 'put' | 'get';
+export type RoleType = 'update' | 'add' | 'delete' | 'put' | 'get';
 
 interface ApiOptions {
   route: string;
@@ -11,10 +11,17 @@ interface ApiOptions {
   method?: 'POST' | 'GET' | 'DELETE' | 'PUT';
   tags?: string[];
   parameters?: (ParameterObject | ReferenceObject)[];
-  auth?: RoleType[];
+  auth?: boolean;
+  roles?: RoleType[];
 }
 
-export function Api(data: ApiOptions = { method: 'GET' } as any) {
+const defaultApiOptions: any = {
+  method: 'GET',
+  auth: true
+};
+
+export function Api(data: ApiOptions = { method: 'GET', auth: true } as any) {
+  data = Object.assign(defaultApiOptions, data);
   const decorators = [
     RequestMapping({
       method: RequestMethod[data.method],
@@ -26,10 +33,12 @@ export function Api(data: ApiOptions = { method: 'GET' } as any) {
     })
   ] as any[];
 
-  if (data.auth && data.auth.length) {
-    decorators.push(ApiBearerAuth('auth'));
+  if (data.auth) {
+    decorators.push(ApiBasicAuth('auth'));
     decorators.push(UseGuards(XAuthGuard));
-    decorators.push(SetMetadata('roles', data.auth));
+    if (data.roles) {
+      decorators.push(SetMetadata('roles', data.roles));
+    }
   }
 
   return applyDecorators(...decorators);

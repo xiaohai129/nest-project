@@ -7,12 +7,15 @@ export class AuthService {
   constructor(private readonly jwtService: JwtService) {}
 
   getToken(data: UserTokenDto) {
-    return this.jwtService.signAsync(data, {
-      secret: '123'
+    return this.jwtService.sign(data, {
+      secret: '123',
+      expiresIn: '24h'
     });
   }
 
   verifyToken(token: string) {
-    return this.jwtService.verifyAsync(token);
+    return this.jwtService.verify(token, {
+      secret: '123'
+    });
   }
 }

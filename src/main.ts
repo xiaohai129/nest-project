@@ -44,7 +44,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .addSecurity('auth', {
       type: 'apiKey',
-      name: 'authorization',
+      name: 'token',
       description: '用户token',
       in: 'header'
     })

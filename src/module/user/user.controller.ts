@@ -43,7 +43,7 @@ export class UserController {
   @Api({
     route: '/test',
     title: '测试',
-    auth: ['token', 'add']
+    roles: []
   })
   test() {
     return '123';
