@@ -36,7 +36,7 @@ export function Api(data: ApiOptions = { method: 'GET', auth: true } as any) {
   if (data.auth) {
     decorators.push(ApiBasicAuth('auth'));
     decorators.push(UseGuards(XAuthGuard));
-    if (data.roles) {
+    if (data.roles && data.roles.length != 0) {
       decorators.push(SetMetadata('roles', data.roles));
     }
   }

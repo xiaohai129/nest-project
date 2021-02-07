@@ -19,12 +19,13 @@ export class XAuthGuard implements CanActivate {
       const userRoles = user.roles;
 
       if (methodRoles && userRoles) {
-        const flag = Array.from(new Set([...methodRoles, ...userRoles])).length === methodRoles.concat(userRoles).length;
-        if (flag) {
+        if (methodRoles.filter((v) => userRoles.includes(v)).length != userRoles.length) {
           throw new HttpException('没有权限', HttpStatus.UNAUTHORIZED);
         }
       }
     } catch (error) {
+      console.log(error);
+
       throw new HttpException('token已失效', HttpStatus.UNAUTHORIZED);
     }
     return true;
