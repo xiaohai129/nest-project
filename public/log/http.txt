@@ -1,0 +1,10 @@
+2021-02-08 02:58:31    POST /user/test
+body: {"name":"string","passwrod":"strisdsdng","mobile":"17796479580"}
+error: {"msg":"没有权限","code":403,"data":null}
+------------------------------------error------------------------------------
+
+2021-02-08 02:58:41    POST /user/test
+body: {"name":"string","passwrod":"strisdsdng","mobile":"17796479580"}
+error: {"msg":"没有权限","code":403,"data":null}
+------------------------------------error------------------------------------
+

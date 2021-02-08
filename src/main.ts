@@ -37,6 +37,9 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, '../public/', 'script'), {
     prefix: '/js/'
   });
+  app.useStaticAssets(join(__dirname, '../public/', 'log'), {
+    prefix: '/log/'
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Test example')

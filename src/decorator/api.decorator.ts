@@ -1,7 +1,7 @@
 import { applyDecorators, RequestMapping, RequestMethod, SetMetadata, UseGuards } from '@nestjs/common';
-import { ApiBasicAuth, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiBasicAuth, ApiOperation } from '@nestjs/swagger';
 import { ParameterObject, ReferenceObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
-import { XAuthGuard } from 'src/guard/auth.guard';
+import { AuthGuard } from 'src/guard/auth.guard';
 
 export type RoleType = 'update' | 'add' | 'delete' | 'put' | 'get';
 
@@ -35,7 +35,7 @@ export function Api(data: ApiOptions = { method: 'GET', auth: true } as any) {
 
   if (data.auth) {
     decorators.push(ApiBasicAuth('auth'));
-    decorators.push(UseGuards(XAuthGuard));
+    decorators.push(UseGuards(AuthGuard));
     if (data.roles && data.roles.length != 0) {
       decorators.push(SetMetadata('roles', data.roles));
     }

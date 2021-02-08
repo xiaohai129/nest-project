@@ -1,6 +1,5 @@
-import { Body, Controller, Get, Post, Query, Response } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, SwaggerModule } from '@nestjs/swagger';
-import { join } from 'path';
+import { Body, Controller, Post } from '@nestjs/common';
+import { ApiOkResponse, ApiOperation, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { Api } from 'src/decorator/api.decorator';
 import { AuthService } from '../auth/auth.service';
 import { UserInfoResultDto, UserLoginParamDto } from './dto/user.dto';
@@ -41,11 +40,12 @@ export class UserController {
   }
 
   @Api({
+    method: 'POST',
     route: '/test',
     title: '测试',
-    roles: ['add']
+    roles: ['put']
   })
-  test() {
+  test(@Body() params: User) {
     return '123';
   }
 }
