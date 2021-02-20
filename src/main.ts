@@ -15,8 +15,11 @@ async function bootstrap() {
     new ValidationPipe({
       transform: true,
       transformOptions: {
-        enableImplicitConversion: true
+        enableImplicitConversion: true,
+        excludeExtraneousValues: true
       },
+      enableDebugMessages: true,
+      stopAtFirstError: true,
       exceptionFactory(errors) {
         const error = errors[0];
         const constraints = error.constraints;
@@ -45,6 +48,7 @@ async function bootstrap() {
     .setTitle('Test example')
     .setDescription('The test API description')
     .setVersion('1.0')
+    .addServer('/api')
     .addSecurity('auth', {
       type: 'apiKey',
       name: 'token',
@@ -56,6 +60,8 @@ async function bootstrap() {
   SwaggerModule.setup('api-doc', app, document, {
     customJs: '/js/set-token.js'
   });
+
+  app.setGlobalPrefix('api');
 
   await app.listen(3000);
 }

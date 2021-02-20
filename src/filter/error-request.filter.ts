@@ -13,10 +13,11 @@ export default class ErrorRequestFilter implements ExceptionFilter {
 
     if (typeof message === 'object') {
       message = exception.message;
-      if (exception.error) {
+      if (exception.error && exception.error.sqlMessage) {
         message = exception.error.sqlMessage;
       }
     }
+
     const info = {
       msg: message,
       code: exception.status || exception.sqlState || HttpStatus.INTERNAL_SERVER_ERROR,

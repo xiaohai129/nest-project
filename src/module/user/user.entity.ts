@@ -1,76 +1,84 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude, Transform, TransformationType } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import { IsMobilePhone, IsNotEmpty, MaxLength, MinLength } from 'class-validator';
+import { ApiColumn } from 'src/decorator/api.decorator';
+import { DateColumn } from 'src/decorator/date-column.decorator';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity()
 export class User {
-  @PrimaryColumn({
-    length: 10
-  })
-  id: string;
-
-  @ApiProperty({
-    description: '用户名称'
+  @ApiColumn({
+    description: '用户ID',
+    column: {
+      primary: true,
+      length: 10
+    }
   })
   @IsNotEmpty()
-  @Column({
-    length: 16
+  id: string;
+
+  @ApiColumn({
+    description: '用户名称',
+    column: {
+      length: 16
+    }
   })
+  @IsNotEmpty()
   nickname: string;
 
-  @Exclude({
-    toPlainOnly: true
-  })
-  @ApiProperty({
-    description: '密码'
+  @ApiColumn({
+    description: '密码',
+    column: {
+      length: 32
+    },
+    exclude: true
   })
   @MinLength(6)
   @MaxLength(18)
   @IsNotEmpty()
-  @Column({
-    length: 18
-  })
   passwrod: string;
 
-  @ApiProperty({
+  @ApiColumn({
     description: '手机号',
-    default: '17796479580'
+    column: {
+      length: 11,
+      unique: true,
+      update: false
+    }
   })
   @IsMobilePhone('zh-CN')
-  @Column({
-    length: 11,
-    unique: true
-  })
   mobile: string;
 
-  @ApiProperty({
+  @ApiColumn({
     description: '用户头像地址'
   })
-  @Column()
   avatar: string;
 
-  @ApiProperty({
-    description: '个性签名'
-  })
-  @Column({
-    length: 128
+  @ApiColumn({
+    description: '个性签名',
+    column: {
+      length: 128
+    }
   })
   slogan: string;
 
-  @ApiProperty({
-    description: '用户标签'
-  })
-  @Column({
-    type: 'varchar',
-    length: 64
-  })
-  @Transform((params) => {
-    const obj = params.obj;
-    const tags = obj.tags || '';
-    if (typeof tags === 'string') {
-      return tags.split(',');
+  @ApiColumn({
+    description: '用户标签',
+    column: {
+      length: 64
     }
   })
-  tags: string[];
+  tags: string;
+
+  @ApiColumn({
+    description: '创建时间',
+    date: 'CreateDateColumn'
+  })
+  createDate: Date;
+
+  @ApiColumn({
+    description: '更新时间',
+    date: 'UpdateDateColumn'
+  })
+  updateDate: Date;
 }

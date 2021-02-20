@@ -11,10 +11,11 @@ export interface ApiResponse<T = any> {
 
 export default class TransformInterceptor<T = any> implements NestInterceptor<T, ApiResponse<T>> {
   intercept(context: ExecutionContext, next: CallHandler<T>): Observable<ApiResponse<T>> {
+    context.switchToHttp().getResponse().status(200);
     return next.handle().pipe(
       map((data) => {
         return {
-          data: classToPlain(data),
+          data: classToPlain(data) || null,
           code: 200,
           msg: '成功'
         };

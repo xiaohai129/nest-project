@@ -1,7 +1,10 @@
 import { applyDecorators, RequestMapping, RequestMethod, SetMetadata, Type, UseGuards } from '@nestjs/common';
-import { ApiBasicAuth, ApiOkResponse, ApiOperation, ApiParam, ApiProperty } from '@nestjs/swagger';
+import { ApiBasicAuth, ApiOkResponse, ApiOperation, ApiParam, ApiProperty, ApiPropertyOptions } from '@nestjs/swagger';
 import { ParameterObject, ReferenceObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
+import { Exclude, Expose } from 'class-transformer';
 import { AuthGuard } from 'src/guard/auth.guard';
+import { Column, ColumnOptions } from 'typeorm';
+import { DateColumn, DateColumnType } from './date-column.decorator';
 
 export type RoleType = 'update' | 'add' | 'delete' | 'put' | 'get';
 
@@ -13,18 +16,15 @@ interface ApiOptions {
   parameters?: (ParameterObject | ReferenceObject)[];
   auth?: boolean;
   roles?: RoleType[];
-  result: {
-    type?: Type<unknown> | string;
-    description?: string;
-  };
+  result?: any;
+  description?: string;
 }
 
-const defaultApiOptions: any = {
-  method: 'GET',
-  auth: true
-};
-
 export function Api(data: ApiOptions = { method: 'GET', auth: true } as any) {
+  const defaultApiOptions: any = {
+    method: 'GET',
+    auth: true
+  };
   data = Object.assign(defaultApiOptions, data);
 
   const decorators = [
@@ -53,9 +53,36 @@ export function Api(data: ApiOptions = { method: 'GET', auth: true } as any) {
     }
   }
 
-  if (data.result) {
-    decorators.push(ApiOkResponse(data.result));
+  const result: any = {
+    type: data.result,
+    description: data.description
+  };
+  if (!data.result && !data.description) {
+    result.description = '无返回值';
   }
+  decorators.push(ApiOkResponse(result));
 
+  return applyDecorators(...decorators);
+}
+
+interface ApiColumnOptions extends ApiPropertyOptions {
+  expose?: boolean;
+  exclude?: boolean;
+  column?: ColumnOptions;
+  date?: DateColumnType;
+}
+export function ApiColumn(options: ApiColumnOptions) {
+  const decorators: any[] = [ApiProperty({})];
+  if (options.expose) {
+    decorators.push(Expose());
+  }
+  if (options.exclude) {
+    decorators.push(Exclude({ toPlainOnly: true }));
+  }
+  if (options.date) {
+    decorators.push(DateColumn(options.date));
+  } else {
+    decorators.push(Column(options.column || {}));
+  }
   return applyDecorators(...decorators);
 }

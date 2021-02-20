@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import BaseService from '../base/base.service';
-import { UserLoginParamDto } from './dto/user.dto';
+import { UserLoginParamDto, UserRegisterParamsDto, UserUpdateParamsDto } from './dto/user.dto';
 import { User } from './user.entity';
 
 @Injectable()
@@ -14,7 +14,7 @@ export class UserService extends BaseService<User> {
     super(userRepository);
   }
 
-  async addUser(data: User) {
+  async addUser(data: UserRegisterParamsDto) {
     try {
       return await this.add(data);
     } catch (err) {
@@ -34,7 +34,7 @@ export class UserService extends BaseService<User> {
     if (res) {
       return res;
     } else {
-      throw new HttpException('用户不存在', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('账号密码错误', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

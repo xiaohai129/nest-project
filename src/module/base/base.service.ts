@@ -6,7 +6,7 @@ import { uid } from 'uid';
 export default class BaseService<T = any> {
   constructor(private readonly baseRepository: Repository<T>) {}
 
-  async add(data: T) {
+  async add(data: T | any) {
     try {
       const uuid = uid(10);
       (data as any).id = uuid;
@@ -21,8 +21,8 @@ export default class BaseService<T = any> {
     try {
       const res = await this.baseRepository.findOne(options);
       return classToClass(res);
-    } catch {
-      throw new HttpException('查找数据失败', HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (error) {
+      throw { message: '查找数据失败', error };
     }
   }
 
@@ -33,8 +33,8 @@ export default class BaseService<T = any> {
         list: classToClass(res[0]),
         total: res[1]
       };
-    } catch {
-      throw new HttpException('查找数据失败', HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (error) {
+      throw { message: '查找数据失败', error };
     }
   }
 
@@ -42,8 +42,20 @@ export default class BaseService<T = any> {
     try {
       const res = this.baseRepository.findByIds([id]);
       return classToClass(res[0]);
-    } catch {
-      throw new HttpException('查找数据失败', HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (error) {
+      throw { message: '查找数据失败', error };
+    }
+  }
+
+  async updateById(id: string, info: any) {
+    try {
+      const res = await this.baseRepository.update({ id } as any, info);
+      const affected = res.affected;
+      if (affected <= 0) {
+        throw new Error();
+      }
+    } catch (error) {
+      throw { message: '更新数据失败', error };
     }
   }
 }
