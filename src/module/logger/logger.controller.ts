@@ -1,12 +1,11 @@
-import { Controller, Get } from '@nestjs/common';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { Controller, Get, Headers } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller()
+@ApiTags('日志')
 export class LoggerController {
   @Get('logger')
-  getLoggerInfo() {
-    const log = readFileSync(join(__dirname, '../../../', '/public/log/http.txt'));
-    return log;
+  getLoggerInfo(@Headers() headers: any) {
+    return `http://${headers.host}/log/http.txt`;
   }
 }

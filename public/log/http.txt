@@ -1,10 +1,35 @@
-2021-02-08 02:58:31    POST /user/test
-body: {"name":"string","passwrod":"strisdsdng","mobile":"17796479580"}
-error: {"msg":"没有权限","code":403,"data":null}
+2021-02-19 06:20:31    POST /user/register
+body: {"nickname":"string","passwrod":"string","mobile":"17796479580","avatar":"string","slogan":"string","tags":["string"]}
+error: {"msg":"You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ')' at line 1","code":500,"data":null}
 ------------------------------------error------------------------------------
 
-2021-02-08 02:58:41    POST /user/test
-body: {"name":"string","passwrod":"strisdsdng","mobile":"17796479580"}
-error: {"msg":"没有权限","code":403,"data":null}
+2021-02-19 06:20:53    POST /user/register
+body: {"nickname":"string","passwrod":"string","mobile":"17796479580","avatar":"string","slogan":"string","tags":["string"]}
+error: {"msg":"You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ')' at line 1","code":500,"data":null}
+------------------------------------error------------------------------------
+
+2021-02-19 06:21:03    POST /user/register
+body: {"nickname":"string","passwrod":"string","mobile":"17796479580","avatar":"string","slogan":"string","tags":["string"]}
+error: {"msg":"You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ')' at line 1","code":500,"data":null}
+------------------------------------error------------------------------------
+
+2021-02-19 06:21:44    POST /user/register
+body: {"nickname":"string","passwrod":"string","mobile":"17796479580","avatar":"string","slogan":"string","tags":["string"]}
+error: {"msg":"You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ')' at line 1","code":500,"data":null,"sql":"INSERT INTO `user`(`id`, `nickname`, `passwrod`, `mobile`, `avatar`, `slogan`, `tags`) VALUES ('08ba5f88ed', 'string', 'string', '17796479580', 'string', 'string', )"}
+------------------------------------error------------------------------------
+
+2021-02-19 06:24:40    POST /user/register
+body: {"nickname":"string","passwrod":"string","mobile":"17796479580","avatar":"string","slogan":"string","tags":["string"]}
+error: {"msg":"You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ')' at line 1","code":500,"data":null,"sql":"INSERT INTO `user`(`id`, `nickname`, `passwrod`, `mobile`, `avatar`, `slogan`, `tags`) VALUES ('0b1fa701a2', 'string', 'string', '17796479580', 'string', 'string', )"}
+------------------------------------error------------------------------------
+
+2021-02-19 06:28:42    POST /user/register
+body: {"nickname":"string","passwrod":"string","mobile":"17796479580","avatar":"string","slogan":"string","tags":["string"]}
+error: {"msg":"tags.split is not a function","code":500,"data":null}
+------------------------------------error------------------------------------
+
+2021-02-19 06:29:26    POST /user/register
+body: {"nickname":"string","passwrod":"string","mobile":"17796479580","avatar":"string","slogan":"string","tags":["string"]}
+error: {"msg":"tags.split is not a function","code":500,"data":null}
 ------------------------------------error------------------------------------
 

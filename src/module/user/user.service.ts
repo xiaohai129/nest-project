@@ -18,19 +18,23 @@ export class UserService extends BaseService<User> {
     try {
       return await this.add(data);
     } catch (err) {
-      if (err.sqlState === '23000') {
-        throw new HttpException('手机号已存在', HttpStatus.GONE);
+      const error = err.error;
+      if (error.sqlState === '23000') {
+        throw '手机号已存在';
       }
+      throw err;
     }
   }
 
   async findUser(params: UserLoginParamDto) {
-    const res = await this.userRepository.find({
+    const res = await this.find({
       where: params
     });
-    if (res.length <= 0) {
-      throw new HttpException('用户不存在', HttpStatus.GONE);
+
+    if (res) {
+      return res;
+    } else {
+      throw new HttpException('用户不存在', HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    return res[0];
   }
 }

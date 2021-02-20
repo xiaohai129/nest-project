@@ -3,10 +3,14 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { classToPlain } from 'class-transformer';
 
-export default class TransformInterceptor implements NestInterceptor {
-  intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> | Promise<Observable<any>> {
-    const ctx = context.switchToHttp();
-    ctx.getResponse().status(200);
+export interface ApiResponse<T = any> {
+  data: T;
+  code: number;
+  msg: string;
+}
+
+export default class TransformInterceptor<T = any> implements NestInterceptor<T, ApiResponse<T>> {
+  intercept(context: ExecutionContext, next: CallHandler<T>): Observable<ApiResponse<T>> {
     return next.handle().pipe(
       map((data) => {
         return {
@@ -15,6 +19,6 @@ export default class TransformInterceptor implements NestInterceptor {
           msg: '成功'
         };
       })
-    );
+    ) as any;
   }
 }

@@ -1,17 +1,49 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { classToClass } from 'class-transformer';
+import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { uid } from 'uid';
 
 export default class BaseService<T = any> {
   constructor(private readonly baseRepository: Repository<T>) {}
 
   async add(data: T) {
-    const uuid = uid(10);
-    (data as any).id = uuid;
-    const res = await this.baseRepository.insert(data);
-    if (res) {
+    try {
+      const uuid = uid(10);
+      (data as any).id = uuid;
+      await this.baseRepository.insert(data);
       return uuid;
+    } catch (error) {
+      throw { message: '添加数据失败', error };
     }
-    throw new HttpException('添加数据错误', HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  async find(options?: FindOneOptions<T>) {
+    try {
+      const res = await this.baseRepository.findOne(options);
+      return classToClass(res);
+    } catch {
+      throw new HttpException('查找数据失败', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async findList(options: FindManyOptions<T> = { skip: 0, take: 10 }) {
+    try {
+      const res = await this.baseRepository.findAndCount(options);
+      return {
+        list: classToClass(res[0]),
+        total: res[1]
+      };
+    } catch {
+      throw new HttpException('查找数据失败', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async findById(id: string) {
+    try {
+      const res = this.baseRepository.findByIds([id]);
+      return classToClass(res[0]);
+    } catch {
+      throw new HttpException('查找数据失败', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }

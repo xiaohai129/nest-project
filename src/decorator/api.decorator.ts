@@ -1,5 +1,5 @@
-import { applyDecorators, RequestMapping, RequestMethod, SetMetadata, UseGuards } from '@nestjs/common';
-import { ApiBasicAuth, ApiOperation } from '@nestjs/swagger';
+import { applyDecorators, RequestMapping, RequestMethod, SetMetadata, Type, UseGuards } from '@nestjs/common';
+import { ApiBasicAuth, ApiOkResponse, ApiOperation, ApiParam, ApiProperty } from '@nestjs/swagger';
 import { ParameterObject, ReferenceObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 import { AuthGuard } from 'src/guard/auth.guard';
 
@@ -13,6 +13,10 @@ interface ApiOptions {
   parameters?: (ParameterObject | ReferenceObject)[];
   auth?: boolean;
   roles?: RoleType[];
+  result: {
+    type?: Type<unknown> | string;
+    description?: string;
+  };
 }
 
 const defaultApiOptions: any = {
@@ -22,6 +26,7 @@ const defaultApiOptions: any = {
 
 export function Api(data: ApiOptions = { method: 'GET', auth: true } as any) {
   data = Object.assign(defaultApiOptions, data);
+
   const decorators = [
     RequestMapping({
       method: RequestMethod[data.method],
@@ -39,6 +44,17 @@ export function Api(data: ApiOptions = { method: 'GET', auth: true } as any) {
     if (data.roles && data.roles.length != 0) {
       decorators.push(SetMetadata('roles', data.roles));
     }
+  }
+
+  if (data.parameters) {
+    for (const i in data.parameters) {
+      const param = data.parameters[i] as ParameterObject;
+      decorators.push(ApiParam(param));
+    }
+  }
+
+  if (data.result) {
+    decorators.push(ApiOkResponse(data.result));
   }
 
   return applyDecorators(...decorators);

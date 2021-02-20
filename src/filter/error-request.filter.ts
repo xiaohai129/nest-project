@@ -9,13 +9,27 @@ export default class ErrorRequestFilter implements ExceptionFilter {
   catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const res = ctx.getResponse();
-    const info = {
-      msg: exception.message,
-      code: exception.status || exception.sqlState,
-      data: null
-    };
-    res.status(HttpStatus.OK).json(info);
+    let message: any = exception;
 
-    this.loggerService.writeLog(res.req, 'error', info);
+    if (typeof message === 'object') {
+      message = exception.message;
+      if (exception.error) {
+        message = exception.error.sqlMessage;
+      }
+    }
+    const info = {
+      msg: message,
+      code: exception.status || exception.sqlState || HttpStatus.INTERNAL_SERVER_ERROR,
+      data: null
+    } as any;
+
+    if (exception.status !== 404 && exception.status !== 401) {
+      const logInfo = { ...info } as any;
+      if (exception.error && exception.error.sql) {
+        logInfo.sql = exception.error && exception.error.sql;
+      }
+      this.loggerService.writeLog(res.req, 'error', logInfo);
+    }
+    res.status(HttpStatus.OK).json(info);
   }
 }

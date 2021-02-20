@@ -1,5 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { plainToClass } from 'class-transformer';
 import { Api } from 'src/decorator/api.decorator';
 import { AuthService } from '../auth/auth.service';
 import { UserInfoResultDto, UserLoginParamDto } from './dto/user.dto';
@@ -15,16 +16,14 @@ export class UserController {
     summary: '用户登录',
     tags: ['用户']
   })
-  @ApiOkResponse({
-    type: UserInfoResultDto
-  })
   async login(@Body() params: UserLoginParamDto) {
     const res1 = await this.userService.findUser(params);
     const res2 = await this.authService.getToken({ ...res1, roles: ['add', 'get'] });
-    return {
+
+    return plainToClass(UserInfoResultDto, {
       ...res1,
       token: res2
-    };
+    });
   }
 
   @Post('/register')
@@ -43,9 +42,14 @@ export class UserController {
     method: 'POST',
     route: '/test',
     title: '测试',
-    roles: ['put']
+    roles: ['add'],
+    result: {
+      type: UserInfoResultDto
+    }
   })
-  test(@Body() params: User) {
-    return '123';
+  async test() {
+    const res = await this.userService.findList();
+    console.log(res);
+    return res;
   }
 }

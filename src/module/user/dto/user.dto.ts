@@ -28,6 +28,6 @@ export class UserInfoResultDto extends User {
   token: string;
 }
 
-export class UserTokenDto extends PickType(User, ['id', 'mobile', 'name']) {
+export class UserTokenDto extends PickType(User, ['id', 'mobile', 'nickname']) {
   roles: RoleType[] = ['add', 'get'];
 }
