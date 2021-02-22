@@ -1,9 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Exclude, Expose } from 'class-transformer';
 import { IsMobilePhone, IsNotEmpty, MaxLength, MinLength } from 'class-validator';
 import { ApiColumn } from 'src/decorator/api.decorator';
-import { DateColumn } from 'src/decorator/date-column.decorator';
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Entity } from 'typeorm';
 
 @Entity()
 export class User {
@@ -65,10 +62,19 @@ export class User {
   @ApiColumn({
     description: '用户标签',
     column: {
-      length: 64
+      length: 64,
+      type: 'varchar',
+      transformer: {
+        to(value) {
+          return value.join(',');
+        },
+        from(value) {
+          return value.split(',');
+        }
+      }
     }
   })
-  tags: string;
+  tags: string[];
 
   @ApiColumn({
     description: '创建时间',

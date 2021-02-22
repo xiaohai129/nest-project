@@ -1,6 +1,5 @@
+const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNlZmNiN2ZmZDEiLCJtb2JpbGUiOiIxNzc5NjQ3OTU4MCIsIm5pY2tuYW1lIjoic3RyaW5nIiwicm9sZXMiOlsiYWRkIiwiZ2V0Il0sImlhdCI6MTYxMzk4ODAzMiwiZXhwIjoxNjE0MDc0NDMyfQ.cJnJ_qwC-Ot6DF8tb6P_xpc1baNv_K5v7nd30Co5its';
+
 setTimeout(() => {
-  ui.preauthorizeApiKey(
-    'auth',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjdlODQ3ZDNkM2EiLCJuaWNrbmFtZSI6InN0cmluZyIsInBhc3N3cm9kIjoiYjQ1Y2ZmZTA4NGRkM2QyMGQ5MjhiZWU4NWU3YjBmMjEiLCJtb2JpbGUiOiIxNzc5NjQ3OTU4MCIsImF2YXRhciI6InN0cmluZyIsInNsb2dhbiI6InN0cmluZyIsInRhZ3MiOiJzdHJpbmciLCJyb2xlcyI6WyJhZGQiLCJnZXQiXSwiaWF0IjoxNjEzODAzNTgzLCJleHAiOjE2MTM4ODk5ODN9.Foe8hKfLibdVxcTV-Cah6qBgI6GAgKKCia4A2hls4H4'
-  );
+  ui.preauthorizeApiKey('auth', token);
 }, 1000);

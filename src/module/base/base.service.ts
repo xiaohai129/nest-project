@@ -40,7 +40,7 @@ export default class BaseService<T = any> {
 
   async findById(id: string) {
     try {
-      const res = this.baseRepository.findByIds([id]);
+      const res = await this.baseRepository.findByIds([id]);
       return classToClass(res[0]);
     } catch (error) {
       throw { message: '查找数据失败', error };

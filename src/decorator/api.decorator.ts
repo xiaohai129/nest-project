@@ -1,6 +1,6 @@
-import { applyDecorators, RequestMapping, RequestMethod, SetMetadata, Type, UseGuards } from '@nestjs/common';
-import { ApiBasicAuth, ApiOkResponse, ApiOperation, ApiParam, ApiProperty, ApiPropertyOptions } from '@nestjs/swagger';
-import { ParameterObject, ReferenceObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
+import { applyDecorators, RequestMapping, RequestMethod, SetMetadata, UseGuards } from '@nestjs/common';
+import { ApiBasicAuth, ApiBody, ApiOkResponse, ApiOperation, ApiParam, ApiProperty, ApiPropertyOptions } from '@nestjs/swagger';
+import { BaseParameterObject, ParameterLocation, ParameterObject, ReferenceObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 import { Exclude, Expose } from 'class-transformer';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { Column, ColumnOptions } from 'typeorm';
@@ -8,12 +8,17 @@ import { DateColumn, DateColumnType } from './date-column.decorator';
 
 export type RoleType = 'update' | 'add' | 'delete' | 'put' | 'get';
 
+interface ApiBodyOptions {
+  in: 'body';
+  body: Record<string, any>;
+}
+
 interface ApiOptions {
   route: string;
   title: string;
   method?: 'POST' | 'GET' | 'DELETE' | 'PUT';
   tags?: string[];
-  parameters?: (ParameterObject | ReferenceObject)[];
+  parameters?: ParameterObject | ApiBodyOptions[];
   auth?: boolean;
   roles?: RoleType[];
   result?: any;
@@ -48,8 +53,18 @@ export function Api(data: ApiOptions = { method: 'GET', auth: true } as any) {
 
   if (data.parameters) {
     for (const i in data.parameters) {
-      const param = data.parameters[i] as ParameterObject;
-      decorators.push(ApiParam(param));
+      const param = data.parameters[i];
+      if (param.in === 'body') {
+        decorators.push(
+          ApiBody({
+            schema: {
+              properties: param.body
+            }
+          })
+        );
+      } else {
+        decorators.push(ApiParam(param));
+      }
     }
   }
 
@@ -65,20 +80,32 @@ export function Api(data: ApiOptions = { method: 'GET', auth: true } as any) {
   return applyDecorators(...decorators);
 }
 
-interface ApiColumnOptions extends ApiPropertyOptions {
+interface ApiFieldOptions extends ApiPropertyOptions {
   expose?: boolean;
   exclude?: boolean;
+}
+
+interface ApiColumnOptions extends ApiFieldOptions {
   column?: ColumnOptions;
   date?: DateColumnType;
 }
-export function ApiColumn(options: ApiColumnOptions) {
-  const decorators: any[] = [ApiProperty({})];
-  if (options.expose) {
+
+export function ApiField(options: ApiFieldOptions) {
+  const decorators: any[] = [ApiProperty(options)];
+  if (options.expose != false) {
     decorators.push(Expose());
   }
   if (options.exclude) {
     decorators.push(Exclude({ toPlainOnly: true }));
   }
+  return applyDecorators(...decorators);
+}
+
+export function ApiColumn(options: ApiColumnOptions) {
+  const pOptions = JSON.parse(JSON.stringify(options));
+  delete pOptions.column;
+  delete pOptions.date;
+  const decorators: any[] = [ApiField(pOptions)];
   if (options.date) {
     decorators.push(DateColumn(options.date));
   } else {

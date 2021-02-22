@@ -24,7 +24,7 @@ export class LoggerService {
       }
     }
     str += `------------------------------------${type}------------------------------------\n\n`;
-    appendFile(join(__dirname, '../../../', '/public/log/http.txt'), str, (err) => {
+    appendFile(join(__dirname, '../../../', '/public/log/http.log'), str, (err) => {
       if (err) {
         console.log(err.message);
       }

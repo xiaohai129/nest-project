@@ -1,17 +1,28 @@
-import { Body, Controller } from '@nestjs/common';
+import { Body, Controller, Param } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { classToClass, plainToClass } from 'class-transformer';
+import { plainToClass } from 'class-transformer';
+import { debug } from 'console';
 import { MD5 } from 'crypto-js';
+import { readFile, readFileSync, writeFile, writeFileSync } from 'fs';
+import { join } from 'path';
 import { Api } from 'src/decorator/api.decorator';
+import { UserInfo } from 'src/decorator/user-info.decorator';
 import { AuthService } from '../auth/auth.service';
-import { UserLoginResultDto, UserLoginParamDto, UserRegisterParamsDto, UserUpdateParamsDto } from './dto/user.dto';
-import { User } from './user.entity';
+import { CacheService } from '../cache/cache.service';
+import {
+  UserLoginResultDto,
+  UserLoginParamDto,
+  UserRegisterParamsDto,
+  UserUpdateParamsDto,
+  UserTokenDto,
+  UserUpdatePasswordParamsDto
+} from './dto/user.dto';
 import { UserService } from './user.service';
 
 @Controller('/user')
 @ApiTags('用户')
 export class UserController {
-  constructor(private readonly userService: UserService, private readonly authService: AuthService) {}
+  constructor(private readonly userService: UserService, private readonly authService: AuthService, private readonly cacheService: CacheService) {}
 
   @Api({
     route: '/login',
@@ -23,7 +34,16 @@ export class UserController {
   async login(@Body() params: UserLoginParamDto) {
     params.passwrod = MD5(params.passwrod).toString();
     const res1 = await this.userService.findUser(params);
-    const res2 = await this.authService.getToken({ ...res1, roles: ['add', 'get'] });
+    const res2 = await this.authService.getToken({ id: res1.id, mobile: res1.mobile, nickname: res1.nickname, roles: ['add', 'get'] });
+
+    this.cacheService.set(res1.id, res2);
+
+    if (process.env.NODE_ENV === 'development') {
+      const jsPath = join(__dirname, '../../../', '/public/script/set-token.js');
+      let jsstr = readFileSync(jsPath).toString();
+      jsstr = jsstr.replace(/token = '(.*)'/gi, `token = '${res2}'`);
+      writeFileSync(jsPath, jsstr);
+    }
 
     return plainToClass(UserLoginResultDto, {
       ...res1,
@@ -48,10 +68,48 @@ export class UserController {
     method: 'POST',
     title: '修改当前用户信息'
   })
-  async updateInfo(@Body() params: UserUpdateParamsDto) {
-    console.log(params);
+  async updateInfo(@Body() params: UserUpdateParamsDto, @UserInfo() user: UserTokenDto) {
+    return await this.userService.updateById(user.id, params);
+  }
 
-    return await this.userService.updateById('751fa83803', params);
+  @Api({
+    route: '/getInfo',
+    method: 'GET',
+    title: '获取当前用户信息'
+  })
+  async getInfo(@UserInfo() user: UserTokenDto) {
+    return await this.userService.findById(user.id);
+  }
+
+  @Api({
+    route: '/updateAvatar',
+    method: 'POST',
+    title: '更新当前用户头像',
+    parameters: [
+      {
+        in: 'body',
+        body: {
+          avatar: {
+            type: 'string',
+            description: '头像全地址'
+          }
+        }
+      }
+    ]
+  })
+  async updateAvatar(@UserInfo() user: UserTokenDto, @Body('avatar') avatar: string) {
+    return await this.userService.updateById(user.id, { avatar });
+  }
+
+  @Api({
+    route: '/updatePassword',
+    method: 'POST',
+    title: '更改当前用户密码'
+  })
+  async updatePassword(@UserInfo() user: UserTokenDto, @Body() params: UserUpdatePasswordParamsDto) {
+    params.passwrod = MD5(params.passwrod).toString();
+    await this.userService.updateById(user.id, { passwrod: params.passwrod });
+    await this.cacheService.del(user.id);
   }
 
   @Api({
@@ -60,7 +118,9 @@ export class UserController {
     title: '测试',
     roles: ['add']
   })
-  async test(@Body() params: User) {
-    console.log(params);
+  async test(@UserInfo() user: UserTokenDto) {
+    let jsstr = readFileSync(join(__dirname, '../../../', '/public/script/set-token.js')).toString();
+    jsstr = jsstr.replace(/token = '(.*)'/gi, `token = '${123}'`);
+    console.log(jsstr);
   }
 }
