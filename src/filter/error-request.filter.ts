@@ -25,7 +25,7 @@ export default class ErrorRequestFilter implements ExceptionFilter {
     } as any;
 
     if (exception.status !== 404 && exception.status !== 401) {
-      const logInfo = { ...info } as any;
+      const logInfo = { ...info, info: exception.error.toString() } as any;
       if (exception.error && exception.error.sql) {
         logInfo.sql = exception.error && exception.error.sql;
       }

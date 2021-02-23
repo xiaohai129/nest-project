@@ -1,23 +1,23 @@
-import { Body, Controller, Param } from '@nestjs/common';
+import { Body, Controller } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { plainToClass } from 'class-transformer';
-import { debug } from 'console';
 import { MD5 } from 'crypto-js';
-import { readFile, readFileSync, writeFile, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { Api } from 'src/decorator/api.decorator';
 import { UserInfo } from 'src/decorator/user-info.decorator';
 import { AuthService } from '../auth/auth.service';
 import { CacheService } from '../cache/cache.service';
+import { UserService } from './user.service';
 import {
   UserLoginResultDto,
-  UserLoginParamDto,
+  UserLoginParamsDto,
   UserRegisterParamsDto,
   UserUpdateParamsDto,
   UserTokenDto,
-  UserUpdatePasswordParamsDto
-} from './dto/user.dto';
-import { UserService } from './user.service';
+  UserUpdatePasswordParamsDto,
+  UserUpdateAvatarParamsDto
+} from './user.dto';
 
 @Controller('/user')
 @ApiTags('用户')
@@ -31,12 +31,10 @@ export class UserController {
     auth: false,
     result: UserLoginResultDto
   })
-  async login(@Body() params: UserLoginParamDto) {
+  async login(@Body() params: UserLoginParamsDto) {
     params.passwrod = MD5(params.passwrod).toString();
     const res1 = await this.userService.findUser(params);
     const res2 = await this.authService.getToken({ id: res1.id, mobile: res1.mobile, nickname: res1.nickname, roles: ['add', 'get'] });
-
-    this.cacheService.set(res1.id, res2);
 
     if (process.env.NODE_ENV === 'development') {
       const jsPath = join(__dirname, '../../../', '/public/script/set-token.js');
@@ -68,12 +66,12 @@ export class UserController {
     method: 'POST',
     title: '修改当前用户信息'
   })
-  async updateInfo(@Body() params: UserUpdateParamsDto, @UserInfo() user: UserTokenDto) {
+  async update(@Body() params: UserUpdateParamsDto, @UserInfo() user: UserTokenDto) {
     return await this.userService.updateById(user.id, params);
   }
 
   @Api({
-    route: '/getInfo',
+    route: '/details',
     method: 'GET',
     title: '获取当前用户信息'
   })
@@ -84,21 +82,10 @@ export class UserController {
   @Api({
     route: '/updateAvatar',
     method: 'POST',
-    title: '更新当前用户头像',
-    parameters: [
-      {
-        in: 'body',
-        body: {
-          avatar: {
-            type: 'string',
-            description: '头像全地址'
-          }
-        }
-      }
-    ]
+    title: '更新当前用户头像'
   })
-  async updateAvatar(@UserInfo() user: UserTokenDto, @Body('avatar') avatar: string) {
-    return await this.userService.updateById(user.id, { avatar });
+  async updateAvatar(@UserInfo() user: UserTokenDto, @Body() params: UserUpdateAvatarParamsDto) {
+    return await this.userService.updateById(user.id, params);
   }
 
   @Api({

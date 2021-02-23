@@ -61,17 +61,10 @@ export class User {
 
   @ApiColumn({
     description: '用户标签',
+    isArray: true,
     column: {
       length: 64,
-      type: 'varchar',
-      transformer: {
-        to(value) {
-          return value.join(',');
-        },
-        from(value) {
-          return value.split(',');
-        }
-      }
+      type: 'varchar'
     }
   })
   tags: string[];

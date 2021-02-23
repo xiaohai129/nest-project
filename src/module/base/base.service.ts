@@ -1,4 +1,3 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
 import { classToClass } from 'class-transformer';
 import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { uid } from 'uid';
@@ -41,6 +40,8 @@ export default class BaseService<T = any> {
   async findById(id: string) {
     try {
       const res = await this.baseRepository.findByIds([id]);
+      console.log(res);
+
       return classToClass(res[0]);
     } catch (error) {
       throw { message: '查找数据失败', error };

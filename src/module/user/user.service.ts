@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import BaseService from '../base/base.service';
-import { UserLoginParamDto, UserRegisterParamsDto, UserUpdateParamsDto } from './dto/user.dto';
+import { UserLoginParamsDto, UserRegisterParamsDto } from './user.dto';
 import { User } from './user.entity';
 
 @Injectable()
@@ -26,7 +26,7 @@ export class UserService extends BaseService<User> {
     }
   }
 
-  async findUser(params: UserLoginParamDto) {
+  async findUser(params: UserLoginParamsDto) {
     const res = await this.find({
       where: params
     });

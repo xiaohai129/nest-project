@@ -1,7 +1,10 @@
-import * as db from './db.config';
-import * as redis from './redis.config';
+import db from './db.config';
+import redis from './redis.config';
 
 export default () => ({
   db,
-  redis
+  redis,
+  jwt: {
+    secret: '123456'
+  }
 });

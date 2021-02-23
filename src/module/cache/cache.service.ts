@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { RedisService } from 'nestjs-redis';
+import { Redis } from 'ioredis';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class CacheService {
-  private client: any;
-  constructor(private readonly redisService: RedisService) {
+  private client: Redis;
+  constructor(private readonly redisService: RedisService, private readonly configService: ConfigService) {
     this.getClient();
   }
 
@@ -12,16 +14,12 @@ export class CacheService {
     this.client = await this.redisService.getClient();
   }
 
-  public async set(key: string, value: any, seconds?: number): Promise<any> {
+  public async set(key: string, value: any): Promise<any> {
     value = JSON.stringify(value);
     if (!this.client) {
       await this.getClient();
     }
-    if (!seconds) {
-      await this.client.set(key, value);
-    } else {
-      await this.client.set(key, value, 'EX', seconds);
-    }
+    await this.client.set(key, value, 'EX', this.configService.get('redis.expires'));
   }
 
   public async get(key: string): Promise<any> {
@@ -44,5 +42,13 @@ export class CacheService {
     }
 
     await this.client.del(key);
+  }
+
+  public async expire(name: string) {
+    if (!this.client) {
+      await this.getClient();
+    }
+
+    await this.client.expire(name, this.configService.get('redis.expires'));
   }
 }

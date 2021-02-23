@@ -1,9 +1,13 @@
+import { ClassifyModule } from './classify/classify.module';
+import { CacheModule } from './cache/cache.module';
 import { UserModule } from './user/user.module';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RedisModule } from 'nestjs-redis';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import config from '../config/index.config';
+import { AuthModule } from './auth/auth.module';
+import { ArticleModule } from './article/article.module';
 
 @Module({
   imports: [
@@ -28,7 +32,12 @@ import config from '../config/index.config';
         return configService.get('redis');
       }
     }),
-    UserModule
+    AuthModule,
+    CacheModule,
+    UserModule,
+    ArticleModule,
+    ClassifyModule,
+    CacheModule
   ]
 })
 export class AppModule {}

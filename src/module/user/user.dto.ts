@@ -1,14 +1,14 @@
 import { OmitType, PickType } from '@nestjs/swagger';
-import { Equals, IsNumberString, Length, NotEquals } from 'class-validator';
+import { IsNumberString, Length } from 'class-validator';
 import { ApiField, RoleType } from 'src/decorator/api.decorator';
 import { Compare } from 'src/decorator/validator.decorator';
-import { User } from '../user.entity';
+import { User } from './user.entity';
 
 export class UserTokenDto extends PickType(User, ['id', 'mobile', 'nickname']) {
   roles: RoleType[] = ['add', 'get'];
 }
 
-export class UserLoginParamDto extends PickType(User, ['mobile', 'passwrod']) {}
+export class UserLoginParamsDto extends PickType(User, ['mobile', 'passwrod']) {}
 
 export class UserLoginResultDto extends User {
   @ApiField({
@@ -21,7 +21,7 @@ export class UserRegisterParamsDto extends OmitType(User, ['id', 'createDate', '
 
 export class UserUpdateParamsDto extends OmitType(UserRegisterParamsDto, ['passwrod', 'mobile']) {}
 
-export class UserUpdatePasswordParamsDto extends UserLoginParamDto {
+export class UserUpdatePasswordParamsDto extends UserLoginParamsDto {
   @ApiField({
     description: '确认密码'
   })
@@ -39,3 +39,5 @@ export class UserUpdatePasswordParamsDto extends UserLoginParamDto {
   @Length(6, 6)
   code: string;
 }
+
+export class UserUpdateAvatarParamsDto extends PickType(User, ['avatar']) {}

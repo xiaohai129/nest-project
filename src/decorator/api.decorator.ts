@@ -1,6 +1,6 @@
 import { applyDecorators, RequestMapping, RequestMethod, SetMetadata, UseGuards } from '@nestjs/common';
 import { ApiBasicAuth, ApiBody, ApiOkResponse, ApiOperation, ApiParam, ApiProperty, ApiPropertyOptions } from '@nestjs/swagger';
-import { BaseParameterObject, ParameterLocation, ParameterObject, ReferenceObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
+import { ParameterObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 import { Exclude, Expose } from 'class-transformer';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { Column, ColumnOptions } from 'typeorm';
@@ -18,7 +18,7 @@ interface ApiOptions {
   title: string;
   method?: 'POST' | 'GET' | 'DELETE' | 'PUT';
   tags?: string[];
-  parameters?: ParameterObject | ApiBodyOptions[];
+  parameters?: (ParameterObject | ApiBodyOptions)[];
   auth?: boolean;
   roles?: RoleType[];
   result?: any;
@@ -92,7 +92,7 @@ interface ApiColumnOptions extends ApiFieldOptions {
 
 export function ApiField(options: ApiFieldOptions) {
   const decorators: any[] = [ApiProperty(options)];
-  if (options.expose != false) {
+  if (options.expose !== false) {
     decorators.push(Expose());
   }
   if (options.exclude) {
@@ -105,11 +105,29 @@ export function ApiColumn(options: ApiColumnOptions) {
   const pOptions = JSON.parse(JSON.stringify(options));
   delete pOptions.column;
   delete pOptions.date;
+  delete pOptions.isArray;
   const decorators: any[] = [ApiField(pOptions)];
   if (options.date) {
     decorators.push(DateColumn(options.date));
   } else {
-    decorators.push(Column(options.column || {}));
+    let columnOptions = options.column;
+    if (options.isArray) {
+      columnOptions = Object.assign(
+        {
+          type: 'varchar',
+          transformer: {
+            to(value) {
+              return value.join(',');
+            },
+            from(value) {
+              return value.split(',');
+            }
+          }
+        },
+        columnOptions || {}
+      );
+    }
+    decorators.push(Column(columnOptions));
   }
   return applyDecorators(...decorators);
 }

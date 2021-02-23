@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext, HttpException, HttpStatus, Inject } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, HttpException, HttpStatus } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthService } from 'src/module/auth/auth.service';
 import { CacheService } from 'src/module/cache/cache.service';
@@ -6,12 +6,10 @@ import { LoggerService } from 'src/module/logger/logger.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(
-    private readonly reflector: Reflector,
-    private readonly authService: AuthService,
-    private readonly loggerService: LoggerService,
-    private readonly cacheService: CacheService
-  ) {}
+  private readonly loggerService: LoggerService;
+  constructor(private readonly reflector: Reflector, private readonly authService: AuthService, private readonly cacheService: CacheService) {
+    this.loggerService = new LoggerService();
+  }
 
   async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest() as Request;
@@ -34,6 +32,7 @@ export class AuthGuard implements CanActivate {
           throw new HttpException('没有权限', HttpStatus.FORBIDDEN);
         }
       }
+      this.cacheService.expire(user.id);
       (request as any).user = user;
     }
     this.loggerService.writeLog(request, 'info');
