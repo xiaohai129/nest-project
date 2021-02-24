@@ -12,4 +12,16 @@ export class ArticleService extends BaseService<Article> {
   ) {
     super(userRepository);
   }
+
+  async add(data: any) {
+    try {
+      return await super.add(data);
+    } catch (err) {
+      const error = err.error;
+      if (error.sqlState === '23000' && error.sqlMessage.includes('classifysId')) {
+        throw '分类ID无效';
+      }
+      throw err;
+    }
+  }
 }

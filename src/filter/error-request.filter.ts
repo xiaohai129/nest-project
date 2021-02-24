@@ -18,13 +18,15 @@ export default class ErrorRequestFilter implements ExceptionFilter {
       }
     }
 
+    console.log(exception);
+
     const info = {
       msg: message,
       code: exception.status || exception.sqlState || HttpStatus.INTERNAL_SERVER_ERROR,
       data: null
     } as any;
 
-    if (exception.status !== 404 && exception.status !== 401) {
+    if (typeof exception === 'object' && exception.status !== 404 && exception.status !== 401) {
       const logInfo = { ...info, info: exception.error.toString() } as any;
       if (exception.error && exception.error.sql) {
         logInfo.sql = exception.error && exception.error.sql;

@@ -37,11 +37,9 @@ export default class BaseService<T = any> {
     }
   }
 
-  async findById(id: string) {
+  async findById(id: string, options: FindManyOptions<T> = {}) {
     try {
-      const res = await this.baseRepository.findByIds([id]);
-      console.log(res);
-
+      const res = await this.baseRepository.findByIds([id], options);
       return classToClass(res[0]);
     } catch (error) {
       throw { message: '查找数据失败', error };
@@ -57,6 +55,14 @@ export default class BaseService<T = any> {
       }
     } catch (error) {
       throw { message: '更新数据失败', error };
+    }
+  }
+
+  async delete(id: string) {
+    try {
+      return await this.baseRepository.delete({ id } as any);
+    } catch (error) {
+      throw { message: '删除数据失败', error };
     }
   }
 }

@@ -1,3 +1,4 @@
+import { TestModule } from './test/test.module';
 import { ClassifyModule } from './classify/classify.module';
 import { CacheModule } from './cache/cache.module';
 import { UserModule } from './user/user.module';
@@ -37,7 +38,8 @@ import { ArticleModule } from './article/article.module';
     UserModule,
     ArticleModule,
     ClassifyModule,
-    CacheModule
+    CacheModule,
+    TestModule
   ]
 })
 export class AppModule {}

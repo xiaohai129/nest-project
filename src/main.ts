@@ -11,25 +11,25 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // 管道
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      transformOptions: {
-        enableImplicitConversion: true,
-        excludeExtraneousValues: true
-      },
-      enableDebugMessages: true,
-      stopAtFirstError: true,
-      exceptionFactory(errors) {
-        const error = errors[0];
-        const constraints = error.constraints;
-        for (const key in constraints) {
-          return new HttpException(constraints[key], 400);
-        }
-        return new HttpException('参数验证失败', 400);
-      }
-    })
-  );
+  // app.useGlobalPipes(
+  //   new ValidationPipe({
+  //     transform: true,
+  //     transformOptions: {
+  //       enableImplicitConversion: true,
+  //       excludeExtraneousValues: true
+  //     },
+  //     enableDebugMessages: true,
+  //     stopAtFirstError: true,
+  //     exceptionFactory(errors) {
+  //       const error = errors[0];
+  //       const constraints = error.constraints;
+  //       for (const key in constraints) {
+  //         return new HttpException(constraints[key], 400);
+  //       }
+  //       return new HttpException('参数验证失败', 400);
+  //     }
+  //   })
+  // );
 
   // 拦截器
   app.useGlobalInterceptors(new TransformInterceptor());

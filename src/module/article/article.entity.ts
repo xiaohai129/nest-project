@@ -1,5 +1,5 @@
-import { ApiColumn, ApiField } from 'src/decorator/api.decorator';
-import { Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { ApiColumn } from 'src/decorator/api.decorator';
+import { Entity, ManyToOne } from 'typeorm';
 import { Classify } from '../classify/classify.entity';
 
 @Entity()
@@ -33,19 +33,19 @@ export class Article {
   })
   videos: string[];
 
-  @ApiField({
+  @ApiColumn({
     description: '文案分类'
   })
   @ManyToOne(
     () => Classify,
     (classify) => {
-      classify.id;
+      return classify.id;
+    },
+    {
+      cascade: true
     }
   )
-  @JoinColumn({
-    name: 'classifyId'
-  })
-  classifyId: string;
+  classifys: string;
 
   @ApiColumn({
     description: '创建时间',

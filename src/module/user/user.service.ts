@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import BaseService from '../base/base.service';
@@ -34,7 +34,7 @@ export class UserService extends BaseService<User> {
     if (res) {
       return res;
     } else {
-      throw new HttpException('账号密码错误', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw '账号密码错误';
     }
   }
 }

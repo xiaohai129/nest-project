@@ -108,6 +108,5 @@ export class UserController {
   async test(@UserInfo() user: UserTokenDto) {
     let jsstr = readFileSync(join(__dirname, '../../../', '/public/script/set-token.js')).toString();
     jsstr = jsstr.replace(/token = '(.*)'/gi, `token = '${123}'`);
-    console.log(jsstr);
   }
 }
